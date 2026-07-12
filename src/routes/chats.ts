@@ -1,7 +1,11 @@
-import { Router } from 'express';
+import { Router } from "express";
 
-import { createChat } from '../controllers/chats.js';
+import { createChat, getChat, getChats } from "../controllers/chats.js";
+import { auth } from "../middleware/auth.js";
 
 export const chatsRouter = Router();
 
-chatsRouter.post('/', createChat);
+chatsRouter.use(auth);
+chatsRouter.post("/", createChat);
+chatsRouter.get("/", getChats);
+chatsRouter.get("/:id", getChat);

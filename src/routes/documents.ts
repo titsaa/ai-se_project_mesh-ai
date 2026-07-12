@@ -1,7 +1,12 @@
-import { Router } from 'express';
+import { Router } from "express";
+import multer from "multer";
 
-import { createDocument } from '../controllers/documents.js';
+import { createDocument, getDocuments } from "../controllers/documents.js";
+import { auth } from "../middleware/auth.js";
 
 export const documentsRouter = Router();
+const upload = multer({ dest: "uploads/" });
 
-documentsRouter.post('/', createDocument);
+documentsRouter.use(auth);
+documentsRouter.post("/", upload.single("file"), createDocument);
+documentsRouter.get("/", getDocuments);
