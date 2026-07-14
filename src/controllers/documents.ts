@@ -1,5 +1,17 @@
+import { readFile, unlink } from "node:fs/promises";
+
 import type { Request, Response } from "express";
+
+import Chunk from "../models/chunk.js";
 import Document from "../models/document.js";
+import { chunkText } from "../utils/chunk.js";
+import { createEmbedding } from "../utils/embeddings.js";
+
+import * as pdfParseModule from "pdf-parse";
+
+const pdfParse = pdfParseModule as unknown as (
+  buffer: Buffer,
+) => Promise<{ text: string }>;
 
 export const createDocument = async (
   req: Request,
@@ -16,13 +28,40 @@ export const createDocument = async (
     return;
   }
 
-  const document = await Document.create({
-    title: req.body.title || req.file.originalname,
-    fileName: req.file.originalname,
-    userId,
-  });
+  try {
+    const fileBuffer = await readFile(req.file.path);
+    const parsed = await pdfParse(fileBuffer);
+    const document = await Document.create({
+      title: req.body.title || req.file.originalname,
+      fileName: req.file.originalname,
+      userId,
+    });
 
-  res.status(201).json({ success: true, data: document, error: null });
+    const chunks = chunkText(parsed.text);
+
+    await Promise.all(
+      chunks.map(async (chunk) => {
+        const embedding = await createEmbedding(chunk);
+        await Chunk.create({
+          documentId: document._id,
+          text: chunk,
+          embedding,
+        });
+      }),
+    );
+
+    await unlink(req.file.path).catch(() => undefined);
+
+    res.status(201).json({ success: true, data: document, error: null });
+  } catch (error) {
+    await unlink(req.file.path).catch(() => undefined);
+    res.status(500).json({
+      success: false,
+      data: null,
+      error: { message: "Failed to process document" },
+    });
+    console.error(error);
+  }
 };
 
 export const getDocuments = async (
