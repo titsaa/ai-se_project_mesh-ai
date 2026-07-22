@@ -12,14 +12,14 @@ export const createMessage = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
-  const { content } = req.body;
+  const { question } = req.body;
   const userId = req.user?.userId;
 
-  if (!content || !userId) {
+  if (!question || !userId) {
     res.status(400).json({
       success: false,
       data: null,
-      error: { message: "content and authentication are required" },
+      error: { message: "question and authentication are required" },
     });
     return;
   }
@@ -37,7 +37,7 @@ export const createMessage = async (
   const userMessage = await Message.create({
     chatId: chat._id,
     role: "user",
-    content,
+    content: question,
   });
 
   const userDocs = await Document.find({ userId }, "_id");
@@ -50,7 +50,7 @@ export const createMessage = async (
     embedding: chunk.embedding,
   }));
 
-  const queryEmbedding = await createEmbedding(content);
+  const queryEmbedding = await createEmbedding(question);
   const ranked = rankBySimilarity(queryEmbedding, chunks, 5);
   const context = buildContext(ranked);
 
@@ -64,7 +64,7 @@ export const createMessage = async (
       },
       {
         role: "user",
-        content: `Context:\n${context}\n\nQuestion: ${content}`,
+        content: `Context:\n${context}\n\nQuestion: ${question}`,
       },
     ],
   });

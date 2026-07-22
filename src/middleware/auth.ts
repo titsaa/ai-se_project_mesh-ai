@@ -8,7 +8,7 @@ export const auth = (req: Request, res: Response, next: NextFunction): void => {
     res.status(401).json({
       success: false,
       data: null,
-      error: { message: "Unauthorized" },
+      error: { message: "Missing or invalid authorization token" },
     });
     return;
   }
@@ -29,6 +29,6 @@ export const auth = (req: Request, res: Response, next: NextFunction): void => {
   res.status(401).json({
     success: false,
     data: null,
-    error: { message: "Unauthorized" },
+    error: { message: "Invalid or expired token" },
   });
 };
