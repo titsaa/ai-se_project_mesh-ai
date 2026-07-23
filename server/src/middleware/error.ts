@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from "express";
+import type { Request, Response } from "express";
 
 export function notFoundHandler(req: Request, res: Response) {
   res.status(404).json({
@@ -8,12 +8,7 @@ export function notFoundHandler(req: Request, res: Response) {
   });
 }
 
-export function errorHandler(
-  err: Error,
-  _req: Request,
-  res: Response,
-  _next: NextFunction,
-) {
+export function errorHandler(err: Error, _req: Request, res: Response) {
   console.error(err);
 
   res.status(500).json({
