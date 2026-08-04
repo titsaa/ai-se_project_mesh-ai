@@ -35,6 +35,12 @@ export default function KnowledgeBase() {
     setDocuments((previousDocuments) => [newDoc, ...previousDocuments]);
   };
 
+  const handleDeleteDocument = (id: string) => {
+    setDocuments((previousDocuments) =>
+      previousDocuments.filter((doc) => doc._id !== id),
+    );
+  };
+
   return (
     <div className="knowledge-base">
       <h1 className="knowledge-base__title">Manage Your Knowledge Base</h1>
@@ -69,6 +75,7 @@ export default function KnowledgeBase() {
                   type="button"
                   className="knowledge-base__delete"
                   aria-label={`Delete ${doc.title}`}
+                  onClick={() => handleDeleteDocument(doc._id)}
                 >
                   ×
                 </button>
