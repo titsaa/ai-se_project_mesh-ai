@@ -5,6 +5,7 @@ import {
   getChats,
   createChat,
   getChat,
+  sendMessage,
   type Chat as ChatType,
   type Message,
 } from "../../utils/api";
@@ -29,6 +30,8 @@ export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [messagesError, setMessagesError] = useState("");
+  const [messageInput, setMessageInput] = useState("");
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -81,11 +84,41 @@ export default function Chat() {
     }
   };
 
+  const handleSendMessage = async () => {
+    if (!activeChatId || !messageInput.trim()) return;
+
+    const question = messageInput.trim();
+    const userMessage: Message = {
+      _id: Date.now().toString(),
+      chatId: activeChatId,
+      role: "user",
+      content: question,
+      createdAt: new Date().toISOString(),
+    };
+
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
+    setMessageInput("");
+    setIsSendingMessage(true);
+
+    try {
+      const res = await sendMessage(activeChatId, question);
+      if (res.data) {
+        setMessages((prevMessages) => [...prevMessages, res.data]);
+      }
+    } catch {
+      setMessagesError("Failed to send message.");
+    } finally {
+      setIsSendingMessage(false);
+    }
+  };
+
   return (
     <div className="chat">
       <aside
         className={
-          isMobileMenuOpen ? "chat__sidebar chat__sidebar_open" : "chat__sidebar"
+          isMobileMenuOpen
+            ? "chat__sidebar chat__sidebar_open"
+            : "chat__sidebar"
         }
       >
         <button
@@ -156,14 +189,58 @@ export default function Chat() {
           </div>
         )}
 
-        {!messagesError &&
-          !isLoadingMessages &&
-          activeChatId &&
-          messages.length === 0 && (
-            <div className="chat__no-messages">
-              <p>No messages yet. Say hello to get started.</p>
+        {activeChatId && !messagesError && !isLoadingMessages && (
+          <>
+            {messages.length === 0 ? (
+              <div className="chat__no-messages">
+                <p>Start the conversation by asking a question below.</p>
+              </div>
+            ) : (
+              <ul className="chat__messages">
+                {messages.map((message) => (
+                  <li
+                    key={message._id}
+                    className={
+                      message.role === "user"
+                        ? "chat__message chat__message_user"
+                        : "chat__message chat__message_assistant"
+                    }
+                  >
+                    {message.role === "assistant" ? (
+                      <div className="markdown">
+                        <ReactMarkdown>{message.content}</ReactMarkdown>
+                      </div>
+                    ) : (
+                      message.content
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <div className="chat__input-bar">
+              <input
+                className="chat__input"
+                type="text"
+                placeholder="Type your message..."
+                value={messageInput}
+                onChange={(e) => setMessageInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSendMessage();
+                }}
+                disabled={isSendingMessage}
+              />
+              <button
+                className="chat__send-btn"
+                type="button"
+                onClick={handleSendMessage}
+                disabled={!messageInput.trim() || isSendingMessage}
+              >
+                {isSendingMessage ? "Sending…" : "Send"}
+              </button>
             </div>
-          )}
+          </>
+        )}
 
         {activeChatId && isLoadingMessages && (
           <p className="chat__no-messages">Loading messages…</p>
@@ -173,29 +250,6 @@ export default function Chat() {
           <div className="chat__error">
             <p>{messagesError}</p>
           </div>
-        )}
-
-        {activeChatId && !isLoadingMessages && !messagesError && (
-          <ul className="chat__messages">
-            {messages.map((message) => (
-              <li
-                key={message._id}
-                className={
-                  message.role === "user"
-                    ? "chat__message chat__message_user"
-                    : "chat__message chat__message_assistant"
-                }
-              >
-                {message.role === "assistant" ? (
-                  <div className="markdown">
-                    <ReactMarkdown>{message.content}</ReactMarkdown>
-                  </div>
-                ) : (
-                  message.content
-                )}
-              </li>
-            ))}
-          </ul>
         )}
       </div>
     </div>

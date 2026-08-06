@@ -22,10 +22,20 @@
   font-weight: 500;
   color: rgba(28, 28, 28, 0.6);
   text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 999px;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.header__link:hover {
+  background: rgba(124, 92, 255, 0.08);
 }
 
 .header__link--active {
-  color: #1c1c1c;
+  color: #ffffff;
+  background: #7c5cff;
 }
 
 .header__menu-btn {
