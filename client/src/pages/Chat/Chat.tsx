@@ -103,7 +103,10 @@ export default function Chat() {
     try {
       const res = await sendMessage(activeChatId, question);
       if (res.data) {
-        setMessages((prevMessages) => [...prevMessages, res.data]);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          ...(res.data ? [res.data] : []),
+        ]);
       }
     } catch {
       setMessagesError("Failed to send message.");

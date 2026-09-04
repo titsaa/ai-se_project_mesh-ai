@@ -1,25 +1,27 @@
-import { Router } from 'express';
+import { Router } from "express";
 
-import { authRouter } from './auth.js';
-import { chatsRouter } from './chats.js';
-import { documentsRouter } from './documents.js';
-import { queryRouter } from './query.js';
+import { authRouter } from "./auth.js";
+import { chatsRouter } from "./chats.js";
+import { documentsRouter } from "./documents.js";
+import { queryRouter } from "./query.js";
+import { usersRouter } from "./users.js";
 
 export const router = Router();
 
-router.get('/health', (req, res) => {
+router.get("/health", (req, res) => {
   void req;
 
   res.status(200).json({
     success: true,
     data: {
-      status: 'ok',
+      status: "ok",
     },
     error: null,
   });
 });
 
-router.use('/auth', authRouter);
-router.use('/chats', chatsRouter);
-router.use('/documents', documentsRouter);
-router.use('/query', queryRouter);
+router.use("/auth", authRouter);
+router.use("/chats", chatsRouter);
+router.use("/documents", documentsRouter);
+router.use("/query", queryRouter);
+router.use("/users", usersRouter);
