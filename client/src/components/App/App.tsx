@@ -5,6 +5,8 @@ import KnowledgeBase from "../../pages/KnowledgeBase/KnowledgeBase";
 import Chat from "../../pages/Chat/Chat";
 import Login from "../../pages/Login/Login";
 import Register from "../../pages/Register/Register";
+import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
+import PublicRoute from "../PublicRoute/PublicRoute";
 import "./App.css";
 
 function App() {
@@ -12,11 +14,39 @@ function App() {
     <div className="app">
       <Routes>
         <Route path="/" element={<Intro />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <Register />
+            </PublicRoute>
+          }
+        />
         <Route element={<AppLayout />}>
-          <Route path="/knowledge" element={<KnowledgeBase />} />
-          <Route path="/chat" element={<Chat />} />
+          <Route
+            path="/knowledge"
+            element={
+              <ProtectedRoute>
+                <KnowledgeBase />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute>
+                <Chat />
+              </ProtectedRoute>
+            }
+          />
         </Route>
       </Routes>
     </div>

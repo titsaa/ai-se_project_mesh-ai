@@ -15,6 +15,7 @@ type AuthContextType = {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (token: string, user: CurrentUser) => void;
+  logout: () => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -53,12 +54,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsAuthenticated(true);
   };
 
+  const logout = () => {
+    localStorage.removeItem("auth-token");
+    setCurrentUser(null);
+    setIsAuthenticated(false);
+  };
+
   const value = useMemo<AuthContextType>(
     () => ({
       currentUser,
       isAuthenticated,
       isLoading,
       login,
+      logout,
     }),
     [currentUser, isAuthenticated, isLoading],
   );

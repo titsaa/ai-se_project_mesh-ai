@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 import "./Header.css";
 
 type Props = {
@@ -12,6 +13,8 @@ export default function Header({
   onMenuClose,
   isMobileMenuOpen,
 }: Props) {
+  const { currentUser, logout } = useAuth();
+
   function getNavLinkClass({ isActive }: { isActive: boolean }) {
     return isActive ? "header__link header__link--active" : "header__link";
   }
@@ -36,12 +39,27 @@ export default function Header({
 
       <span className="header__logo">MeshAI</span>
 
+      {currentUser && (
+        <div className="header__user-menu">
+          <button type="button" className="header__user-btn">
+            {currentUser.name}
+          </button>
+          <button type="button" className="header__logout-btn" onClick={logout}>
+            Logout
+          </button>
+        </div>
+      )}
+
       <nav
         className={
           isMobileMenuOpen ? "header__nav header__nav_mobile" : "header__nav"
         }
       >
-        <NavLink to="/knowledge" className={getNavLinkClass} onClick={onMenuClose}>
+        <NavLink
+          to="/knowledge"
+          className={getNavLinkClass}
+          onClick={onMenuClose}
+        >
           Knowledge Base
         </NavLink>
         <NavLink to="/chat" className={getNavLinkClass} onClick={onMenuClose}>
