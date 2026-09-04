@@ -5,7 +5,12 @@ import Chunk from "../models/chunk.js";
 import Document from "../models/document.js";
 import Message from "../models/message.js";
 import { createEmbedding } from "../utils/embeddings.js";
-import { buildContext, getClient, LLM_MODEL } from "../utils/openai-client.js";
+import {
+  buildContext,
+  getClient,
+  LLM_MODEL,
+  stripThinking,
+} from "../utils/openai-client.js";
 import { rankBySimilarity } from "../utils/vector-search.js";
 
 export const createMessage = async (
@@ -70,7 +75,8 @@ export const createMessage = async (
   });
 
   const answer =
-    response.choices[0]?.message?.content ?? "No answer generated.";
+    stripThinking(response.choices[0]?.message?.content ?? "") ||
+    "No answer returned.";
 
   const assistantMessage = await Message.create({
     chatId: chat._id,
@@ -80,7 +86,7 @@ export const createMessage = async (
 
   res.status(201).json({
     success: true,
-    data: { chat, messages: [userMessage, assistantMessage] },
+    data: [userMessage, assistantMessage],
     error: null,
   });
 };

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import {
@@ -31,7 +31,12 @@ export default function Chat() {
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [messagesError, setMessagesError] = useState("");
   const [messageInput, setMessageInput] = useState("");
-  const [isSendingMessage, setIsSendingMessage] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const messagesEndRef = useRef<HTMLLIElement>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   useEffect(() => {
     const load = async () => {
@@ -98,20 +103,20 @@ export default function Chat() {
 
     setMessages((prevMessages) => [...prevMessages, userMessage]);
     setMessageInput("");
-    setIsSendingMessage(true);
+    setIsSending(true);
 
     try {
       const res = await sendMessage(activeChatId, question);
       if (res.data) {
         setMessages((prevMessages) => [
-          ...prevMessages,
-          ...(res.data ? [res.data] : []),
+          ...prevMessages.filter((m) => m._id !== userMessage._id),
+          ...res.data!,
         ]);
       }
     } catch {
       setMessagesError("Failed to send message.");
     } finally {
-      setIsSendingMessage(false);
+      setIsSending(false);
     }
   };
 
@@ -218,6 +223,12 @@ export default function Chat() {
                     )}
                   </li>
                 ))}
+                {isSending && (
+                  <li className="chat__message chat__message_assistant chat__message_thinking">
+                    Thinking…
+                  </li>
+                )}
+                <li ref={messagesEndRef} />
               </ul>
             )}
 
@@ -231,15 +242,15 @@ export default function Chat() {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleSendMessage();
                 }}
-                disabled={isSendingMessage}
+                disabled={isSending}
               />
               <button
                 className="chat__send-btn"
                 type="button"
                 onClick={handleSendMessage}
-                disabled={!messageInput.trim() || isSendingMessage}
+                disabled={!messageInput.trim() || isSending}
               >
-                {isSendingMessage ? "Sending…" : "Send"}
+                {isSending ? "Sending…" : "Send"}
               </button>
             </div>
           </>

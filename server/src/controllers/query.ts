@@ -1,7 +1,12 @@
 import type { Request, Response } from "express";
 import Chunk from "../models/chunk.js";
 import Document from "../models/document.js";
-import { buildContext, getClient, LLM_MODEL } from "../utils/openai-client.js";
+import {
+  buildContext,
+  getClient,
+  LLM_MODEL,
+  stripThinking,
+} from "../utils/openai-client.js";
 import { createEmbedding } from "../utils/embeddings.js";
 import { rankBySimilarity } from "../utils/vector-search.js";
 
@@ -51,6 +56,7 @@ export const createQuery = async (
   });
 
   const answer =
-    response.choices[0]?.message?.content ?? "No answer generated.";
+    stripThinking(response.choices[0]?.message?.content ?? "") ||
+    "No answer returned.";
   res.status(200).json({ success: true, data: { answer }, error: null });
 };
