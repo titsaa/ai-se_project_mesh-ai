@@ -37,7 +37,9 @@ export function useFormWithValidation<T extends Record<string, string>>(
   );
 
   const handleChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+    event: ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const { name, value } = event.target;
     const nextValues = { ...values, [name]: value } as T;

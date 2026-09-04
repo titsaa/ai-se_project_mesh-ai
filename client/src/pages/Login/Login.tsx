@@ -1,6 +1,8 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import type { FormEvent } from "react";
+import { useAuth } from "../../contexts/AuthContext";
 import { useFormWithValidation } from "../../hooks/useFormWithValidation";
+import { loginUser } from "../../utils/api";
 import "../../assets/css/form.css";
 
 type LoginFormValues = {
@@ -14,12 +16,12 @@ const initialValues: LoginFormValues = {
 };
 
 function getNavLinkClass({ isActive }: { isActive: boolean }) {
-  return isActive
-    ? "auth-nav__link auth-nav__link--active"
-    : "auth-nav__link";
+  return isActive ? "auth-nav__link auth-nav__link--active" : "auth-nav__link";
 }
 
 export default function Login() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const { values, errors, isValid, handleChange, handleSubmit } =
     useFormWithValidation<LoginFormValues>(initialValues, {
       email: (value) => {
@@ -38,9 +40,21 @@ export default function Login() {
       },
     });
 
-  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
-    handleSubmit(event, (formValues) => {
-      console.log("Login form submitted", formValues);
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    handleSubmit(event, async (formValues) => {
+      try {
+        const res = await loginUser(formValues.email, formValues.password);
+        if (res.data) {
+          login(res.data.token, res.data.user);
+          navigate("/knowledge");
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Login failed";
+        const status = document.querySelector(".auth-form__status");
+        if (status) {
+          status.textContent = message;
+        }
+      }
     });
   };
 
@@ -52,8 +66,12 @@ export default function Login() {
 
       <section className="auth-card" aria-label="Login form">
         <nav className="auth-nav" aria-label="Authentication navigation">
-          <NavLink to="/login" className={getNavLinkClass}>Login</NavLink>
-          <NavLink to="/register" className={getNavLinkClass}>Register</NavLink>
+          <NavLink to="/login" className={getNavLinkClass}>
+            Login
+          </NavLink>
+          <NavLink to="/register" className={getNavLinkClass}>
+            Register
+          </NavLink>
         </nav>
 
         <div className="auth-card__content">
@@ -75,9 +93,7 @@ export default function Login() {
               onChange={handleChange}
               required
             />
-            {errors.email && (
-              <p className="auth-form__error">{errors.email}</p>
-            )}
+            {errors.email && <p className="auth-form__error">{errors.email}</p>}
 
             <label className="auth-form__label" htmlFor="login-password">
               Password

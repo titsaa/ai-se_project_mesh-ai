@@ -1,6 +1,7 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import type { FormEvent } from "react";
 import { useFormWithValidation } from "../../hooks/useFormWithValidation";
+import { registerUser } from "../../utils/api";
 import "../../assets/css/form.css";
 
 type RegisterFormValues = {
@@ -16,18 +17,19 @@ const initialValues: RegisterFormValues = {
 };
 
 function getNavLinkClass({ isActive }: { isActive: boolean }) {
-  return isActive
-    ? "auth-nav__link auth-nav__link--active"
-    : "auth-nav__link";
+  return isActive ? "auth-nav__link auth-nav__link--active" : "auth-nav__link";
 }
 
 export default function Register() {
+  const navigate = useNavigate();
   const { values, errors, isValid, handleChange, handleSubmit } =
     useFormWithValidation<RegisterFormValues>(initialValues, {
       name: (value) => {
         if (!value.trim()) return "Name is required.";
-        if (value.trim().length < 2) return "Name must be at least 2 characters.";
-        if (value.trim().length > 40) return "Name must be 40 characters or fewer.";
+        if (value.trim().length < 2)
+          return "Name must be at least 2 characters.";
+        if (value.trim().length > 40)
+          return "Name must be 40 characters or fewer.";
         return undefined;
       },
       email: (value) => {
@@ -46,9 +48,23 @@ export default function Register() {
       },
     });
 
-  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
-    handleSubmit(event, (formValues) => {
-      console.log("Register form submitted", formValues);
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    handleSubmit(event, async (formValues) => {
+      try {
+        await registerUser(
+          formValues.name,
+          formValues.email,
+          formValues.password,
+        );
+        navigate("/login");
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Registration failed";
+        const status = document.querySelector(".auth-form__status");
+        if (status) {
+          status.textContent = message;
+        }
+      }
     });
   };
 
@@ -60,8 +76,12 @@ export default function Register() {
 
       <section className="auth-card" aria-label="Register form">
         <nav className="auth-nav" aria-label="Authentication navigation">
-          <NavLink to="/login" className={getNavLinkClass}>Login</NavLink>
-          <NavLink to="/register" className={getNavLinkClass}>Register</NavLink>
+          <NavLink to="/login" className={getNavLinkClass}>
+            Login
+          </NavLink>
+          <NavLink to="/register" className={getNavLinkClass}>
+            Register
+          </NavLink>
         </nav>
 
         <div className="auth-card__content">
@@ -99,9 +119,7 @@ export default function Register() {
               onChange={handleChange}
               required
             />
-            {errors.email && (
-              <p className="auth-form__error">{errors.email}</p>
-            )}
+            {errors.email && <p className="auth-form__error">{errors.email}</p>}
 
             <label className="auth-form__label" htmlFor="register-password">
               Password
