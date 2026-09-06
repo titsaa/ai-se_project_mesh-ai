@@ -26,37 +26,46 @@ export const createQuery = async (
     return;
   }
 
-  const userDocs = await Document.find({ userId }, "_id");
-  const docIds = userDocs.map((doc) => doc._id);
-  const chunkRecords = await Chunk.find({ documentId: { $in: docIds } });
-  const chunks = chunkRecords.map((chunk) => ({
-    id: String(chunk._id),
-    documentId: String(chunk.documentId),
-    text: chunk.text,
-    embedding: chunk.embedding,
-  }));
+  try {
+    const userDocs = await Document.find({ userId }, "_id");
+    const docIds = userDocs.map((doc) => doc._id);
+    const chunkRecords = await Chunk.find({ documentId: { $in: docIds } });
+    const chunks = chunkRecords.map((chunk) => ({
+      id: String(chunk._id),
+      documentId: String(chunk.documentId),
+      text: chunk.text,
+      embedding: chunk.embedding,
+    }));
 
-  const queryEmbedding = await createEmbedding(question);
-  const ranked = rankBySimilarity(queryEmbedding, chunks, 5);
-  const context = buildContext(ranked);
+    const queryEmbedding = await createEmbedding(question);
+    const ranked = rankBySimilarity(queryEmbedding, chunks, 5);
+    const context = buildContext(ranked);
 
-  const response = await getClient().chat.completions.create({
-    model: LLM_MODEL,
-    messages: [
-      {
-        role: "system",
-        content:
-          "You answer questions using only the provided context. If the context is insufficient, say so clearly.",
-      },
-      {
-        role: "user",
-        content: `Context:\n${context}\n\nQuestion: ${question}`,
-      },
-    ],
-  });
+    const response = await getClient().chat.completions.create({
+      model: LLM_MODEL,
+      messages: [
+        {
+          role: "system",
+          content:
+            "You answer questions using only the provided context. If the context is insufficient, say so clearly.",
+        },
+        {
+          role: "user",
+          content: `Context:\n${context}\n\nQuestion: ${question}`,
+        },
+      ],
+    });
 
-  const answer =
-    stripThinking(response.choices[0]?.message?.content ?? "") ||
-    "No answer returned.";
-  res.status(200).json({ success: true, data: { answer }, error: null });
+    const answer =
+      stripThinking(response.choices[0]?.message?.content ?? "") ||
+      "No answer returned.";
+    res.status(200).json({ success: true, data: { answer }, error: null });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      data: null,
+      error: { message: "Failed to process query" },
+    });
+  }
 };

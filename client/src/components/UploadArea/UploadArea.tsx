@@ -1,24 +1,26 @@
 import "./UploadArea.css";
 
 type Props = {
-  onFileSelect: (file: File) => void;
+  onFileSelect: (file: File) => void | Promise<void>;
+  disabled?: boolean;
 };
 
-export default function UploadArea({ onFileSelect }: Props) {
+export default function UploadArea({ onFileSelect, disabled = false }: Props) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) onFileSelect(file);
+    if (file && !disabled) onFileSelect(file);
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
-    if (file) onFileSelect(file);
+    if (file && !disabled) onFileSelect(file);
   };
 
   return (
     <div
       className="upload-area"
+      aria-disabled={disabled}
       onDrop={handleDrop}
       onDragOver={(e) => e.preventDefault()}
     >
@@ -47,6 +49,7 @@ export default function UploadArea({ onFileSelect }: Props) {
           accept=".pdf"
           className="upload-area__input"
           onChange={handleChange}
+          disabled={disabled}
         />
       </label>
     </div>

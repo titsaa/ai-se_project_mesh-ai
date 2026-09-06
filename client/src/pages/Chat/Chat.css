@@ -60,6 +60,11 @@
   .chat__input-bar {
     margin-left: 0;
   }
+
+  .chat__input-bar {
+    right: 16px;
+    left: 16px;
+  }
 }
 
 .chat__new-btn {
@@ -112,9 +117,12 @@
 
 .chat__main {
   flex: 1;
+  width: 100%;
+  max-width: 980px;
   min-width: 0;
   display: flex;
   flex-direction: column;
+  margin-inline: auto;
   padding-bottom: 120px;
 }
 
@@ -153,9 +161,9 @@
 
 .chat__input-bar {
   position: fixed;
-  right: 32px;
+  right: max(16px, calc((100vw - 300px - 980px) / 2));
   bottom: 24px;
-  left: min(980px, calc(100% - 360px));
+  left: calc(300px + max(0px, (100vw - 1296px) / 2));
   display: flex;
   gap: 12px;
   align-items: center;

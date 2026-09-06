@@ -80,3 +80,36 @@ export const getDocuments = async (
   const documents = await Document.find({ userId }).sort({ createdAt: -1 });
   res.status(200).json({ success: true, data: documents, error: null });
 };
+
+export const deleteDocument = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const userId = req.user?.userId;
+
+  if (!userId) {
+    res.status(401).json({
+      success: false,
+      data: null,
+      error: { message: "Unauthorized" },
+    });
+    return;
+  }
+
+  const document = await Document.findOneAndDelete({
+    _id: req.params.id,
+    userId,
+  });
+
+  if (!document) {
+    res.status(404).json({
+      success: false,
+      data: null,
+      error: { message: "Document not found" },
+    });
+    return;
+  }
+
+  await Chunk.deleteMany({ documentId: document._id });
+  res.status(200).json({ success: true, data: document, error: null });
+};

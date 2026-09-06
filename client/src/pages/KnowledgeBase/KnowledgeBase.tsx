@@ -1,12 +1,19 @@
 import { useEffect, useState } from "react";
 import UploadArea from "../../components/UploadArea/UploadArea";
-import { getDocuments, type KnowledgeDoc } from "../../utils/api";
+import {
+  deleteDocument,
+  getDocuments,
+  uploadDocument,
+  type KnowledgeDoc,
+} from "../../utils/api";
 import "./KnowledgeBase.css";
 
 export default function KnowledgeBase() {
   const [documents, setDocuments] = useState<KnowledgeDoc[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -23,22 +30,32 @@ export default function KnowledgeBase() {
     load();
   }, []);
 
-  const handleFileSelect = (file: File) => {
-    const newDoc: KnowledgeDoc = {
-      _id: Date.now().toString(),
-      title: file.name,
-      fileName: file.name,
-      userId: "local",
-      createdAt: new Date().toISOString(),
-    };
-
-    setDocuments((previousDocuments) => [newDoc, ...previousDocuments]);
+  const handleFileSelect = async (file: File) => {
+    setError(null);
+    setIsUploading(true);
+    try {
+      const res = await uploadDocument(file);
+      if (res.data) setDocuments((previous) => [res.data!, ...previous]);
+    } catch {
+      setError("Failed to upload document.");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
-  const handleDeleteDocument = (id: string) => {
-    setDocuments((previousDocuments) =>
-      previousDocuments.filter((doc) => doc._id !== id),
-    );
+  const handleDeleteDocument = async (id: string) => {
+    setError(null);
+    setDeletingId(id);
+    try {
+      await deleteDocument(id);
+      setDocuments((previousDocuments) =>
+        previousDocuments.filter((doc) => doc._id !== id),
+      );
+    } catch {
+      setError("Failed to delete document.");
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   return (
@@ -47,7 +64,7 @@ export default function KnowledgeBase() {
 
       <section className="knowledge-base__content">
         <p className="knowledge-base__label">Upload documents (PDF)</p>
-        <UploadArea onFileSelect={handleFileSelect} />
+        <UploadArea onFileSelect={handleFileSelect} disabled={isUploading} />
 
         {isLoading && (
           <p className="knowledge-base__message">Loading documents...</p>
@@ -76,6 +93,7 @@ export default function KnowledgeBase() {
                   className="knowledge-base__delete"
                   aria-label={`Delete ${doc.title}`}
                   onClick={() => handleDeleteDocument(doc._id)}
+                  disabled={deletingId === doc._id}
                 >
                   ×
                 </button>

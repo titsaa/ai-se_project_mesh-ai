@@ -1,7 +1,5 @@
 import type { CurrentUser } from "../types";
 
-const delay = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
-
 export const BASE_URL = "/api";
 
 export type KnowledgeDoc = {
@@ -68,42 +66,33 @@ async function request<T>(
   return res.json();
 }
 
-export const getDocuments = async (): Promise<ApiResponse<KnowledgeDoc[]>> => {
-  await delay(700);
-  return {
-    success: true,
-    data: [
-      {
-        _id: "1",
-        title: "Code Review Guidelines",
-        fileName: "code-review-guidelines.pdf",
-        userId: "u1",
-        createdAt: new Date().toISOString(),
-      },
-      {
-        _id: "2",
-        title: "API Reference",
-        fileName: "api-reference.pdf",
-        userId: "u1",
-        createdAt: new Date().toISOString(),
-      },
-      {
-        _id: "3",
-        title: "Onboarding Guide",
-        fileName: "onboarding-guide.pdf",
-        userId: "u1",
-        createdAt: new Date().toISOString(),
-      },
-      {
-        _id: "4",
-        title: "Code of Conduct",
-        fileName: "code_of_conduct.pdf",
-        userId: "u1",
-        createdAt: new Date().toISOString(),
-      },
-    ],
-    error: null,
-  };
+export const getDocuments = async () => {
+  return request<KnowledgeDoc[]>(`${BASE_URL}/documents`);
+};
+
+export const uploadDocument = async (file: File) => {
+  const token = localStorage.getItem("auth-token") ?? "";
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch(`${BASE_URL}/documents`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.error?.message || "Failed to upload document");
+  }
+
+  return res.json() as Promise<ApiResponse<KnowledgeDoc>>;
+};
+
+export const deleteDocument = async (id: string) => {
+  return request<KnowledgeDoc>(`${BASE_URL}/documents/${id}`, {
+    method: "DELETE",
+  });
 };
 
 export const getChats = async () => {
