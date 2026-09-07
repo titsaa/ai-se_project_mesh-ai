@@ -64,7 +64,11 @@ export default function KnowledgeBase() {
 
       <section className="knowledge-base__content">
         <p className="knowledge-base__label">Upload documents (PDF)</p>
-        <UploadArea onFileSelect={handleFileSelect} disabled={isUploading} />
+        <UploadArea
+          onFileSelect={handleFileSelect}
+          disabled={isUploading}
+          isUploading={isUploading}
+        />
 
         {isLoading && (
           <p className="knowledge-base__message">Loading documents...</p>
