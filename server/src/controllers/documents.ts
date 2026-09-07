@@ -7,11 +7,7 @@ import Document from "../models/document.js";
 import { chunkText } from "../utils/chunk.js";
 import { createEmbedding } from "../utils/embeddings.js";
 
-import * as pdfParseModule from "pdf-parse";
-
-const pdfParse = pdfParseModule as unknown as (
-  buffer: Buffer,
-) => Promise<{ text: string }>;
+import { PDFParse } from "pdf-parse";
 
 export const createDocument = async (
   req: Request,
@@ -30,14 +26,15 @@ export const createDocument = async (
 
   try {
     const fileBuffer = await readFile(req.file.path);
-    const parsed = await pdfParse(fileBuffer);
+    const parser = new PDFParse({ data: fileBuffer });
+    const { text } = await parser.getText();
     const document = await Document.create({
       title: req.body.title || req.file.originalname,
       fileName: req.file.originalname,
       userId,
     });
 
-    const chunks = chunkText(parsed.text);
+    const chunks = chunkText(text);
 
     await Promise.all(
       chunks.map(async (chunk) => {

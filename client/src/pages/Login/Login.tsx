@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import type { FormEvent } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useFormWithValidation } from "../../hooks/useFormWithValidation";
@@ -8,6 +8,14 @@ import "../../assets/css/form.css";
 type LoginFormValues = {
   email: string;
   password: string;
+};
+
+type LoginLocationState = {
+  from?: {
+    pathname?: string;
+    search?: string;
+    hash?: string;
+  };
 };
 
 const initialValues: LoginFormValues = {
@@ -20,6 +28,7 @@ function getNavLinkClass({ isActive }: { isActive: boolean }) {
 }
 
 export default function Login() {
+  const location = useLocation();
   const navigate = useNavigate();
   const { login } = useAuth();
   const { values, errors, isValid, handleChange, handleSubmit } =
@@ -46,7 +55,11 @@ export default function Login() {
         const res = await loginUser(formValues.email, formValues.password);
         if (res.data) {
           login(res.data.token, res.data.user);
-          navigate("/knowledge");
+          const state = location.state as LoginLocationState | null;
+          const destination = state?.from
+            ? `${state.from.pathname ?? "/knowledge"}${state.from.search ?? ""}${state.from.hash ?? ""}`
+            : "/knowledge";
+          navigate(destination, { replace: true });
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : "Login failed";
