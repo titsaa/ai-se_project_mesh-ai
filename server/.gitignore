@@ -16,6 +16,7 @@ dist
 .vscode
 
 .env
+.claude
 
 uploads
 *.pdf
