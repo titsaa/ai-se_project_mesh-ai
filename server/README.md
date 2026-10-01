@@ -1,26 +1,37 @@
-# MeshAI Server
+# MeshAI
 
-This is the Express + TypeScript backend for the MeshAI application.
+A full-stack AI assistant app. Users can upload documents to a 
+knowledge base and query them through a chat interface. Utilizes
+RAG via MongoDB and OpenAI.
 
-## Scripts
+**Live:** <https://todo-dev.crabdance.com/>
 
-- `npm run dev` — run the server in development mode
-- `npm run build` — compile the TypeScript project
-- `npm run lint` — lint the server source
-- `npm run test` — run the server test suite
-- `npm start` — start the compiled production server
+## Tech stack
 
-## Environment
+- React
+- TypeScript
+- Express
+- MongoDB
+- Docker
+- Caddy
+- AWS EC2
+- GitHub Actions
 
-The server expects a `.env` file with values such as:
+## Getting started
 
-- `PORT`
-- `MONGO_URI`
-- `JWT_SECRET`
-- `NEBIUS_API_KEY`
+Prerequisites: Node.js 20+, Docker
 
-## Notes
+1. Clone the repository.
+2. `cd` into it.
+3. Copy `.env.example` to `.env` and fill in the required values.
+4. Start the app for development by running `npm run dev` in the root directory.
+5. Run the Docker containers with `docker compose up --build`.
 
-- The API is mounted behind the `/api` route set by the Vite client proxy.
-- Authentication is handled with JWT bearer tokens.
-- Documents are processed and vectorized for the knowledge base flow.
+## Required environment variables
+
+| Variable | Description |
+| --- | --- |
+| `JWT_SECRET` | Secret key used to sign authentication tokens |
+| `NEBIUS_API_KEY` | API key for the Nebius AI service |
+| `MONGO_URI` | MongoDB connection string |
+| `SITE_ADDRESS` | Domain name used by Caddy (production only) |
