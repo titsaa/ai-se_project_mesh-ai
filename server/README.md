@@ -4,7 +4,6 @@ A full-stack AI assistant app. Users can upload documents to a
 knowledge base and query them through a chat interface. Utilizes
 RAG via MongoDB and OpenAI.
 
-**Live:** <https://todo-dev.crabdance.com/>
 
 ## Tech stack
 

@@ -2,6 +2,11 @@
 
 MeshAI is a full-stack retrieval-augmented generation (RAG) app. Users upload PDF documents to a personal knowledge base, and MeshAI answers questions in a chat interface using only the content of those documents.
 
+**Live Demo at:** <https://todo-dev.crabdance.com/>
+
+!!!! ps: My AWS account just went down so I have reached out to customer support and they gave me up to 24hrs to re-open it. I will make sure that the application is back online as soon as they do.
+
+
 ## How it works
 
 1. **Upload**: a PDF is parsed with `pdf-parse`, split into 500-character chunks, and each chunk is embedded with `Qwen/Qwen3-Embedding-8B`.
