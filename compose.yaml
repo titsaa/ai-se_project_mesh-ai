@@ -14,6 +14,7 @@ services:
       NODE_ENV: production
     volumes:
       - uploads_data:/app/uploads
+      - logs_data:/app/logs
     depends_on:
       - mongo
 
@@ -27,6 +28,7 @@ services:
     image: caddy:2-alpine
     environment:
       SITE_ADDRESS: ${SITE_ADDRESS}
+      ACME_EMAIL: ${ACME_EMAIL:?Set ACME_EMAIL in .env (contact email for TLS certificates)}
     ports:
       - "80:80"
       - "443:443"
@@ -43,3 +45,4 @@ volumes:
   caddy_data:
   caddy_config:
   uploads_data:
+  logs_data:

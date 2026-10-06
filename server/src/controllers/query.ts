@@ -8,6 +8,7 @@ import {
   stripThinking,
 } from "../utils/openai-client.js";
 import { createEmbedding } from "../utils/embeddings.js";
+import { logger } from "../utils/logger.js";
 import { rankBySimilarity } from "../utils/vector-search.js";
 
 export const createQuery = async (
@@ -61,7 +62,7 @@ export const createQuery = async (
       "No answer returned.";
     res.status(200).json({ success: true, data: { answer }, error: null });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.status(500).json({
       success: false,
       data: null,

@@ -6,6 +6,7 @@ import Chunk from "../models/chunk.js";
 import Document from "../models/document.js";
 import { chunkText } from "../utils/chunk.js";
 import { createEmbedding } from "../utils/embeddings.js";
+import { logger } from "../utils/logger.js";
 
 import { PDFParse } from "pdf-parse";
 
@@ -57,7 +58,7 @@ export const createDocument = async (
       data: null,
       error: { message: "Failed to process document" },
     });
-    console.error(error);
+    logger.error(error);
   }
 };
 

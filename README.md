@@ -106,6 +106,7 @@ The `compose.yaml` stack runs MongoDB, the backend, the frontend (static build s
    | `JWT_SECRET`     | Secret used to sign auth tokens                                             |
    | `NEBIUS_API_KEY` | Nebius Token Factory API key                                                |
    | `SITE_ADDRESS`   | Domain Caddy serves (and issues a TLS certificate for), e.g. `meshai.example.com`. Use `:80` to serve plain HTTP locally. |
+   | `ACME_EMAIL`     | Contact email for the TLS certificate account. Required: also enables ZeroSSL as a fallback when Let's Encrypt is rate-limited. |
 
 2. Build and start the stack:
 
@@ -155,6 +156,17 @@ All responses use the shape `{ success, data, error }`. Routes other than `/heal
 - `npm run build`: type-check and build for production
 - `npm run preview`: preview the production build
 - `npm run lint`: lint the source
+
+## Logging
+
+The server logs through [Winston](https://github.com/winstonjs/winston) (`server/src/utils/logger.ts`); `console.*` is disallowed by ESLint.
+
+- **Requests** are logged by [Morgan](https://github.com/expressjs/morgan) and piped into Winston at the `http` level (`dev` format in development, Apache `combined` format in production).
+- **Console** output is colorized in development and JSON in production.
+- **Files**: all logs go to `server/logs/combined.log` and errors to `server/logs/error.log`, rotated at 5 MB with the last 5 files kept (git-ignored; stored in the `logs_data` volume under Docker).
+- **Level** defaults to `debug` in development and `http` in production; override with `LOG_LEVEL`.
+
+`npm run dev` sets `NODE_ENV=development`; the Docker image runs with `NODE_ENV=production`.
 
 ## Continuous integration
 

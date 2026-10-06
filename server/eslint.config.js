@@ -15,6 +15,8 @@ export default [
         es2021: true,
       },
     },
-    rules: {},
+    rules: {
+      'no-console': 'error',
+    },
   },
 ];

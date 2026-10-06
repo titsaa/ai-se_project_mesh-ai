@@ -5,6 +5,7 @@ import Chunk from "../models/chunk.js";
 import Document from "../models/document.js";
 import Message from "../models/message.js";
 import { createEmbedding } from "../utils/embeddings.js";
+import { logger } from "../utils/logger.js";
 import {
   buildContext,
   getClient,
@@ -91,7 +92,7 @@ export const createMessage = async (
       error: null,
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.status(500).json({
       success: false,
       data: null,

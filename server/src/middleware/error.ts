@@ -1,5 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 
+import { logger } from "../utils/logger.js";
+
 export function notFoundHandler(req: Request, res: Response) {
   res.status(404).json({
     success: false,
@@ -15,7 +17,7 @@ export function errorHandler(
   _next: NextFunction,
 ) {
   void _next;
-  console.error(err);
+  logger.error(err);
 
   res.status(500).json({
     success: false,
