@@ -1,3 +1,7 @@
+{
+  email {$ACME_EMAIL}
+}
+
 {$SITE_ADDRESS} {
   handle /api/* {
     uri strip_prefix /api
