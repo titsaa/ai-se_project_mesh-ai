@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import "./Header.css";
 
@@ -37,7 +37,9 @@ export default function Header({
         </svg>
       </button>
 
-      <span className="header__logo">MeshAI</span>
+      <Link to="/" className="header__logo">
+        MeshAI
+      </Link>
 
       {currentUser && (
         <div className="header__user-menu">

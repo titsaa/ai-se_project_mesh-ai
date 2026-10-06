@@ -1,4 +1,4 @@
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import type { FormEvent } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useFormWithValidation } from "../../hooks/useFormWithValidation";
@@ -74,7 +74,9 @@ export default function Login() {
   return (
     <main className="auth-page">
       <header className="header auth-header">
-        <img className="header__logo" alt="MeshAI logo" src="/favicon.png" />
+        <Link to="/" aria-label="MeshAI home">
+          <img className="header__logo" alt="MeshAI logo" src="/favicon.png" />
+        </Link>
       </header>
 
       <section className="auth-card" aria-label="Login form">

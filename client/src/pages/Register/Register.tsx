@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import type { FormEvent } from "react";
 import { useFormWithValidation } from "../../hooks/useFormWithValidation";
 import { registerUser } from "../../utils/api";
@@ -71,7 +71,9 @@ export default function Register() {
   return (
     <main className="auth-page">
       <header className="header auth-header">
-        <img className="header__logo" alt="MeshAI logo" src="/favicon.png" />
+        <Link to="/" aria-label="MeshAI home">
+          <img className="header__logo" alt="MeshAI logo" src="/favicon.png" />
+        </Link>
       </header>
 
       <section className="auth-card" aria-label="Register form">
