@@ -1,6 +1,7 @@
 services:
   mongo:
     image: mongo:7
+    restart: unless-stopped
     volumes:
       - mongo_data:/data/db
 
@@ -26,6 +27,7 @@ services:
 
   caddy:
     image: caddy:2-alpine
+    restart: unless-stopped
     environment:
       SITE_ADDRESS: ${SITE_ADDRESS}
       ACME_EMAIL: ${ACME_EMAIL:?Set ACME_EMAIL in .env (contact email for TLS certificates)}
