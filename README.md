@@ -43,7 +43,7 @@ Both models are served through the [Nebius Token Factory](https://tokenfactory.n
 │       ├── middleware/    # JWT auth, logging, error handling
 │       ├── models/        # User, Document, Chunk, Chat, Message
 │       ├── routes/
-│       └── utils/         # chunking, embeddings, vector search, LLM client
+│       └── utils/         # chunking, embeddings, vector search, LLM client, cache, logger
 ├── .github/workflows/ci.yaml
 ├── compose.yaml       # mongo, backend, frontend, caddy
 ├── Caddyfile          # routes /api/* to the backend, everything else to the frontend
@@ -167,6 +167,15 @@ The server logs through [Winston](https://github.com/winstonjs/winston) (`server
 - **Level** defaults to `debug` in development and `http` in production; override with `LOG_LEVEL`.
 
 `npm run dev` sets `NODE_ENV=development`; the Docker image runs with `NODE_ENV=production`.
+
+## Caching
+
+`server/src/utils/cache.ts` is a small in-memory cache (`getCacheValue`, `setCacheValue`, `deleteCacheValue`) with a per-entry TTL.
+
+- `GET /documents` checks the cache first (key `documents:<userId>`) and falls back to MongoDB on a miss, caching the result for 30 seconds.
+- Uploading or deleting a document invalidates that user's entry, so the list is never stale.
+
+The cache lives in the backend process, so it is cleared on restart and not shared between instances.
 
 ## Continuous integration
 
