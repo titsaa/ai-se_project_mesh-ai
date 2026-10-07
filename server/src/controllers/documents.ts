@@ -4,11 +4,20 @@ import type { Request, Response } from "express";
 
 import Chunk from "../models/chunk.js";
 import Document from "../models/document.js";
+import {
+  deleteCacheValue,
+  getCacheValue,
+  setCacheValue,
+} from "../utils/cache.js";
 import { chunkText } from "../utils/chunk.js";
 import { createEmbedding } from "../utils/embeddings.js";
 import { logger } from "../utils/logger.js";
 
 import { PDFParse } from "pdf-parse";
+
+const DOCUMENTS_CACHE_TTL_MS = 30 * 1000;
+
+const documentsCacheKey = (userId: string) => `documents:${userId}`;
 
 export const createDocument = async (
   req: Request,
@@ -34,6 +43,7 @@ export const createDocument = async (
       fileName: req.file.originalname,
       userId,
     });
+    deleteCacheValue(documentsCacheKey(userId));
 
     const chunks = chunkText(text);
 
@@ -75,7 +85,15 @@ export const getDocuments = async (
     return;
   }
 
+  const cacheKey = documentsCacheKey(userId);
+  const cachedDocuments = getCacheValue<unknown>(cacheKey);
+  if (cachedDocuments !== null) {
+    res.status(200).json({ success: true, data: cachedDocuments, error: null });
+    return;
+  }
+
   const documents = await Document.find({ userId }).sort({ createdAt: -1 });
+  setCacheValue(cacheKey, documents, DOCUMENTS_CACHE_TTL_MS);
   res.status(200).json({ success: true, data: documents, error: null });
 };
 
@@ -109,5 +127,6 @@ export const deleteDocument = async (
   }
 
   await Chunk.deleteMany({ documentId: document._id });
+  deleteCacheValue(documentsCacheKey(userId));
   res.status(200).json({ success: true, data: document, error: null });
 };
