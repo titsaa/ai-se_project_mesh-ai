@@ -135,6 +135,8 @@ All responses use the shape `{ success, data, error }`. Routes other than `/heal
 | POST   | `/chats/:id/messages` | Ask a question in a chat (`{ question }`); saves both the question and the answer |
 | POST   | `/query`              | One-off question against the knowledge base (`{ question }`) |
 
+`/auth/register` and `/auth/login` are rate-limited per IP with `express-rate-limit` (`server/src/middleware/rate-limit.ts`): 5 registrations and 10 login attempts per 15 minutes. Over the limit, they return `429` with the standard error shape and `RateLimit` / `Retry-After` headers.
+
 ## Scripts
 
 **Root**
